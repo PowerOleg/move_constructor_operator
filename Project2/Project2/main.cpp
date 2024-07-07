@@ -60,7 +60,10 @@ public:
 		}
 		delete[] this->result_char;
 		this->result_char = std::move(result_char_new);
-		return *this;
+
+
+		auto big_int_new = new Big_integer(std::move(*this));
+		return *big_int_new;
 	}
 	friend std::ostream& operator<<(std::ostream& os, Big_integer& big_integer);
 private:
