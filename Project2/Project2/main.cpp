@@ -26,9 +26,9 @@ public:
 
 	Big_integer(Big_integer&& other) noexcept
 	{
-		//auto exchange = std::exchange(other.result_char, nullptr);				//ошибка при чтении 0x000000,
-		//																			вот это не понятно почему программа думает что  other.result_char  0x000?
-		this->result_char = std::move(other.result_char);
+		//auto exchange = std::exchange(other.result_char, nullptr);				//3)here is error while reading 
+		//																			why program think that other.result_char is 0x000000?
+		this->result_char = std::move(other.result_char);							//4)reasonable?
 	}
 	Big_integer& operator=(Big_integer&& other) noexcept
 	{
@@ -39,11 +39,11 @@ public:
 	Big_integer& operator+(Big_integer& right)
 	{
 		long left_value = std::stol(this->result_char);
-		*this = std::move(right);								//???1)есть смысл? 2)почему right не стал nullptr 3)почему значение в нём изменилось???
+		*this = std::move(right);								//1)reasonable?
 		long right_value = std::stol(this->result_char);
 		long result = left_value + right_value;
 		std::string str = std::to_string(result);
-		this->result_char = std::move(str);							//???есть смысл?
+		this->result_char = std::move(str);							//2)reasonable?
 
 		auto big_int_new = new Big_integer(std::move(*this));		
 		return *this;
@@ -69,6 +69,6 @@ int main(int argc, char** argv)
 	auto number1 = Big_integer("114575");
 	auto number2 = Big_integer("78524");
 	auto result = number1 + number2;
-	std::cout << result; // 193099
+	std::cout << result;
 	return 0;
 }
