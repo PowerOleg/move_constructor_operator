@@ -5,25 +5,18 @@
 class Big_integer 
 {
 public:
-	Big_integer(const char* new_chars = "") : result_char{nullptr}
+	Big_integer(const std::string new_chars) : result_char{new_chars}
 	{
-		if (strlen(new_chars) > 0)
-		{
-			std::size_t n = std::strlen(new_chars) + 1;
-			result_char = new char[n];
-			std::memcpy(result_char, new_chars, n);
-		}
-		else
+		if (new_chars == "")
 		{
 			throw std::logic_error("Big_integer can't be empty");
+			/*std::size_t n = new_chars.length() + 1;
+			result_char = new char[n];
+			std::memcpy(result_char, new_chars, n);*/
 		}
 	}
-	~Big_integer()
-	{
-		delete[] result_char;
-	}
 
-	Big_integer(const Big_integer& other) : result_char{other.result_char}//не понимаю почему есть доступ до other.result_char ведь private?
+	Big_integer(const Big_integer& other) : result_char{other.result_char}
 	{}
 	Big_integer& operator=(const Big_integer& other)
 	{
@@ -31,8 +24,12 @@ public:
 		return /**this=new_big*/*new_big_int;
 	}
 
-	Big_integer(Big_integer&& other) noexcept : result_char{std::exchange(other.result_char, nullptr)}
-	{}
+	Big_integer(Big_integer&& other) noexcept
+	{
+		//auto exchange = std::exchange(other.result_char, nullptr);				//ошибка при чтении 0x000000,
+		//																			вот это не понятно почему программа думает что  other.result_char  0x000?
+		this->result_char = std::move(other.result_char);
+	}
 	Big_integer& operator=(Big_integer&& other) noexcept
 	{
 		std::swap(result_char, other.result_char);
@@ -42,33 +39,19 @@ public:
 	Big_integer& operator+(Big_integer& right)
 	{
 		long left_value = std::stol(this->result_char);
-		//long right_value = std::stol(right.result_char);
-
-		delete[] this->result_char;
-		*this = std::move(right);
-
-
+		*this = std::move(right);								//???1)есть смысл? 2)почему right не стал nullptr 3)почему значение в нём изменилось???
 		long right_value = std::stol(this->result_char);
-
 		long result = left_value + right_value;
 		std::string str = std::to_string(result);
+		this->result_char = std::move(str);							//???есть смысл?
 
-		char* result_char_new = new char[str.length() + 1];
-		for (size_t i = 0; i < str.length() + 1; i++)
-		{
-			result_char_new[i] = str[i];
-		}
-		delete[] this->result_char;
-		this->result_char = std::move(result_char_new);
-
-
-		auto big_int_new = new Big_integer(std::move(*this));
-		return *big_int_new;
+		auto big_int_new = new Big_integer(std::move(*this));		
+		return *this;
 	}
 	friend std::ostream& operator<<(std::ostream& os, Big_integer& big_integer);
 private:
 	//std::vector<char> result;
-	char* result_char;
+	std::string result_char;
 };
 std::ostream& operator<<(std::ostream& os, Big_integer& big_integer)
 {
